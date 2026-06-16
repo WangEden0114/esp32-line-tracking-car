@@ -1,0 +1,64 @@
+const int IN1 = 14; // 左輪前進
+const int IN2 = 27; // 左輪後退
+const int IN3 = 26; // 右輪前進
+const int IN4 = 21; // 右輪後退 
+
+const int S1 = 33;  // OUT1 (最左)
+const int S2 = 22;  // OUT2 (左)
+const int S3 = 4;   // OUT3 (中)
+const int S4 = 35;  // OUT4 (右)
+const int S5 = 23;  // OUT5 (最右)
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(IN1, OUTPUT); pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT); pinMode(IN4, OUTPUT);
+  pinMode(S1, INPUT); pinMode(S2, INPUT);
+  pinMode(S3, INPUT); pinMode(S4, INPUT); pinMode(S5, INPUT);
+  pinMode(2, OUTPUT); // ESP32 藍燈
+}
+
+void forward() {
+  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
+}
+
+void turnLeft() {
+  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);  digitalWrite(IN4, HIGH);
+}
+
+void turnRight() {
+  digitalWrite(IN1, LOW);  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
+}
+
+void stopMotors() {
+  digitalWrite(IN1, LOW);  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);  digitalWrite(IN4, LOW);
+}
+
+void loop() {
+  digitalWrite(2, HIGH); 
+  
+  int l2 = digitalRead(S1);
+  int l1 = digitalRead(S2);
+  int m  = digitalRead(S3);
+  int r1 = digitalRead(S4);
+  int r2 = digitalRead(S5);
+
+  // 循線邏輯
+  if (m == 1) { 
+    forward(); // 中間踩到黑線，直行
+  } 
+  else if (l1 == 1 || l2 == 1) {
+    turnLeft(); // 偏左踩到黑線，向左修正
+  } 
+  else if (r1 == 1 || r2 == 1) {
+    turnRight(); // 偏右踩到黑線，向右修正
+  } 
+  else {
+    stopMotors(); // 沒踩到線，暫停
+  }
+  delay(20);
+}
